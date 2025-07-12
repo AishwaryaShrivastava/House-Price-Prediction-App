@@ -2,15 +2,6 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
-
-
-
-
-
-
-
-
-
 # Load trained model
 model = joblib.load("model/house_price_model.pkl")
 
