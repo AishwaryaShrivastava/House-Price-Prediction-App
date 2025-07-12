@@ -2,14 +2,17 @@ import streamlit as st
 import pandas as pd
 import joblib
 import os
-# Load trained model
+from pathlib import Path
+
+# Load model
 model = joblib.load("model/house_price_model.pkl")
 
-# User authentication
+# Constants
 USER_CSV = "users.csv"
 if not os.path.exists(USER_CSV):
     pd.DataFrame(columns=["username", "password"]).to_csv(USER_CSV, index=False)
 
+# Authentication functions
 def signup(username, password):
     username, password = username.strip(), password.strip()
     users = pd.read_csv(USER_CSV)
@@ -27,50 +30,25 @@ def login(username, password):
     users["password"] = users["password"].astype(str).str.strip()
     return not users[(users["username"] == username) & (users["password"] == password)].empty
 
+# Session state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.username = ""
 
 # Page config
-# Page config
 st.set_page_config(page_title="House Price Prediction App", layout="wide")
 
-st.image("assets/bg_image.jpg", caption="Check if this shows up")
+# Background color (neon light blue/green)
+st.markdown("""
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #b2fefa, #0ed2f7);
+        color: #000000;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# ✅ Background image with overlay
-from pathlib import Path
-
-bg_img_path = Path("assets/bg_image.jpg")  # or the actual filename if renamed
-
-if bg_img_path.exists():
-    absolute_path = bg_img_path.resolve().as_uri()  # platform-independent
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background-image: url("{absolute_path}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-        .stApp::before {{
-            content: "";
-            background: rgba(255, 255, 255, 0.6);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-else:
-    st.warning("⚠️ Background image not found at 'assets/bg_image.jpg'")
-
+# Title
 st.title("🏠 Welcome to House Price Prediction App")
 
 dropdown_mappings = {
@@ -115,7 +93,7 @@ if not st.session_state.logged_in:
             else:
                 st.error("❌ Invalid username or password.")
 
-# Main app after login
+# Main app
 else:
     st.success(f"✅ Welcome {st.session_state.username}!")
     st.subheader("📊 Predict House & Land Price")
@@ -124,15 +102,14 @@ else:
     for feature in model.feature_names_in_:
         if feature in dropdown_mappings:
             inputs[feature] = st.selectbox(f"{feature}", dropdown_mappings[feature])
-        elif feature.lower() in ["area", "area in sqft"]:
-            sqft = st.number_input("Area in Square Feet", min_value=0.0, format="%.2f")
-            inputs[feature] = sqft
+        elif feature.lower() == "area in square feet":
+            inputs[feature] = st.number_input("Area in Square Feet", min_value=1000.0, max_value=1e7, step=100.0)
         elif feature.lower() == "number of bedrooms":
             inputs[feature] = st.number_input("Number of Bedrooms", min_value=0, step=1)
         elif feature.lower() == "number of bathrooms":
             inputs[feature] = st.number_input("Number of Bathrooms", min_value=0, step=1)
         elif feature.lower() == "year built":
-            inputs[feature] = st.number_input("Year Built", min_value=2000, max_value=3000, step=1)
+            inputs[feature] = st.number_input("Year Built", min_value=1900, max_value=3000, step=1)
         elif feature.lower() == "renovation year":
             inputs[feature] = st.selectbox("Renovation Year", [2020, 2021, 2022, 2023, 2024, 2025])
         else:
