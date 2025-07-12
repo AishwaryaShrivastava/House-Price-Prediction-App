@@ -51,18 +51,12 @@ git clone https://github.com/yourusername/house-price-prediction-app.git
 cd house-price-prediction-app
 🐍 2. Install Requirements
 bash
-Copy
-Edit
 pip install -r requirements.txt
 🧠 3. Train the Model
 bash
-Copy
-Edit
 python train_model.py
 🚀 4. Run the App
 bash
-Copy
-Edit
 streamlit run app.py
 ✍️ Usage
 Open the app in your browser (usually http://localhost:8501)
