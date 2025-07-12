@@ -29,14 +29,23 @@ This is a web-based **House Price Prediction App** built using **Streamlit** and
 ## 🏗️ Project Structure
 
 house_price_prediction_app/
+
 ├── app.py # Streamlit application file
+
 ├── train_model.py # Script to generate synthetic data and train ML model
+
 ├── users.csv # Stores registered users (username, password)
+
 ├── model/
+
 │ └── house_price_model.pkl # Trained RandomForestRegressor model
+
 ├── assets/
+
 │ ├── bg_image.jpg # Background image
+
 │ ├── logo.png # Logo (optional)
+
 │ └── house_sample.jpg # Display image inside the app
 
 
