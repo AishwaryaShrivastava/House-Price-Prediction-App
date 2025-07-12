@@ -38,15 +38,15 @@ house_price_prediction_app/
 
 ├── model/
 
-│ └── house_price_model.pkl # Trained RandomForestRegressor model
+  │ └── house_price_model.pkl # Trained RandomForestRegressor model
 
 ├── assets/
 
-│ ├── bg_image.jpg # Background image
+  │ ├── bg_image.jpg # Background image
 
-│ ├── logo.png # Logo (optional)
+  │ ├── logo.png # Logo (optional)
 
-│ └── house_sample.jpg # Display image inside the app
+  │ └── house_sample.jpg # Display image inside the app
 
 
 
