@@ -1,86 +1,173 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor
+import os
+import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-import joblib
-import os
+from sklearn.metrics import mean_squared_error, r2_score
 
+# Seed for reproducibility
 np.random.seed(42)
 
+# Generate synthetic dataset
 def generate_data(n=10000):
     data = pd.DataFrame({
-        "Area in Square Feet": np.random.randint(1000, 100000, n),
-        "Number of Bedrooms": np.random.randint(1, 7, n),
-        "Number of Bathrooms": np.random.randint(1, 5, n),
-        "Year Built": np.random.randint(2000, 2024, n),
-        "Renovation Year": np.random.choice([2020, 2021, 2022, 2023, 2024, 2025], n),
-        "Location Category": np.random.choice(["Urban", "Suburban", "Rural"], n),
-        "Road Type": np.random.choice(["Dirt", "Paved"], n),
-        "Zoning Type": np.random.choice(["Residential", "Commercial", "Agricultural", "Industrial"], n),
-        "Water Supply Quality": np.random.choice(["Poor", "Average", "Good", "Excellent"], n),
-        "Electricity Reliability": np.random.choice(["Poor", "Average", "Good", "Excellent"], n),
-        "Internet Speed": np.random.choice(["Slow", "Moderate", "Fast", "Very Fast"], n),
-        "Greenery Score": np.random.choice(["Poor", "Average", "Good", "Excellent"], n),
-        "Pollution Index": np.random.choice(["High", "Medium", "Low"], n),
-        "Land Slope": np.random.choice(["Flat", "Moderate", "Steep"], n),
-        "Soil Quality Index": np.random.choice(["Poor", "Average", "Good"], n),
-        "Earthquake Resistance": np.random.choice(["No", "Partial", "Yes"], n),
-        "Public Transport Availability": np.random.choice(["None", "Some", "Frequent"], n),
+        "Area": np.random.uniform(500, 100000, n),
+        "Bedrooms": np.random.randint(1, 6, n),
+        "Bathrooms": np.random.randint(1, 4, n),
+        "YearBuilt": np.random.randint(1950, 2025, n),
+        "RenovationYear": np.random.choice([2000, 2010, 2020, 2023, 2024, 2025], n),
+        "Location": np.random.choice(["Urban", "Suburban", "Rural"], n),
+        "RoadType": np.random.choice(["Paved", "Dirt"], n),
+        "PropertyType": np.random.choice(["Residential", "Commercial", "Agricultural"], n),
+        "WaterSupply": np.random.choice(["Good", "Average", "Poor"], n),
+        "Electricity": np.random.choice(["Good", "Average", "Poor"], n),
+        "CrimeRate": np.random.choice(["Low", "Medium", "High"], n),
+        "Traffic": np.random.choice(["Low", "Medium", "High"], n),
+        "GreenSpace": np.random.choice(["Yes", "No"], n),
+        "ProximitySchools": np.random.choice(["Yes", "No"], n),
+        "ProximityMall": np.random.choice(["Yes", "No"], n),
+        "FloodZone": np.random.choice(["Yes", "No"], n),
+        "HouseType": np.random.choice(["Detached", "Semi-Detached", "Apartment", "Bungalow"], n),
+        "NeighborhoodRating": np.random.choice(["Excellent", "Good", "Average", "Poor"], n),
+        "DistanceToCityCenter": np.random.uniform(0, 50, n),
+        "LotSize": np.random.uniform(500, 20000, n),
+        "Garage": np.random.choice(["Yes", "No"], n),
+        "PublicTransport": np.random.choice(["Yes", "No"], n),
+        "Internet": np.random.choice(["Good", "Average", "Poor"], n),
+        "FutureDevelopment": np.random.choice(["Yes", "No"], n),
+        "Drainage": np.random.choice(["Yes", "No"], n),
+        "Slope": np.random.choice(["Flat", "Moderate", "Steep"], n),
     })
 
-    quality_map = {
+    score_map = {
         "Poor": 0.9, "Average": 1.0, "Good": 1.1, "Excellent": 1.3,
-        "High": 0.9, "Medium": 1.0, "Low": 1.1,
-        "Slow": 0.9, "Moderate": 1.0, "Fast": 1.1, "Very Fast": 1.3,
-        "No": 0.9, "Partial": 1.0, "Yes": 1.2,
-        "None": 0.9, "Some": 1.0, "Frequent": 1.2
+        "Low": 1.2, "Medium": 1.0, "High": 0.8,
+        "Yes": 1.2, "No": 0.9
     }
 
     base_price = (
-        data["Area in Square Feet"] * 2000 +
-        data["Number of Bedrooms"] * 700000 +
-        data["Number of Bathrooms"] * 500000
+        data["Area"] * 1500 +
+        data["Bedrooms"] * 500000 +
+        data["Bathrooms"] * 300000 +
+        data["LotSize"] * 50
     )
 
     modifiers = (
-        data["Water Supply Quality"].map(quality_map) *
-        data["Electricity Reliability"].map(quality_map) *
-        data["Internet Speed"].map(quality_map) *
-        data["Greenery Score"].map(quality_map) *
-        data["Pollution Index"].map(quality_map) *
-        data["Earthquake Resistance"].map(quality_map) *
-        data["Public Transport Availability"].map(quality_map)
+        data["WaterSupply"].map(score_map) *
+        data["Electricity"].map(score_map) *
+        data["CrimeRate"].map(score_map) *
+        data["Traffic"].map(score_map) *
+        data["GreenSpace"].map(score_map) *
+        data["ProximitySchools"].map(score_map) *
+        data["ProximityMall"].map(score_map) *
+        data["FloodZone"].map(score_map) *
+        data["Garage"].map(score_map) *
+        data["PublicTransport"].map(score_map) *
+        data["Internet"].map(score_map) *
+        data["FutureDevelopment"].map(score_map) *
+        data["Drainage"].map(score_map) *
+        data["NeighborhoodRating"].map(score_map)
     )
 
-    noise = np.random.normal(0, 500000, n)
-    data["Price"] = (base_price * modifiers) + noise
+    noise = np.random.normal(0, 100000, n)
+    data["Price"] = base_price * modifiers + noise
     return data
 
-# Generate and split data
+# Load and split data
 data = generate_data()
 X = data.drop("Price", axis=1)
 y = data["Price"]
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Preprocessing
-categorical_features = X.select_dtypes(include='object').columns.tolist()
+# Categorical columns
+categorical_cols = X.select_dtypes(include="object").columns.tolist()
 preprocessor = ColumnTransformer([
-    ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_features)
-], remainder='passthrough')
+    ("cat", OneHotEncoder(handle_unknown="ignore"), categorical_cols)
+], remainder="passthrough")
 
-# Pipeline
-pipeline = Pipeline([
-    ("preprocessor", preprocessor),
-    ("model", RandomForestRegressor(n_estimators=200, max_depth=None, random_state=42))
-])
+# Models to compare
+models = {
+    "Linear Regression": LinearRegression(),
+    "Decision Tree": DecisionTreeRegressor(random_state=42),
+    "Random Forest": RandomForestRegressor(n_estimators=150, random_state=42)
+}
 
-# Train model
-pipeline.fit(X, y)
+mse_scores = {}
+r2_scores = {}
+predictions = {}
 
-# Save model
-os.makedirs("model", exist_ok=True)
-joblib.dump(pipeline, "model/house_price_model.pkl")
+# Train and evaluate models
+for name, model in models.items():
+    pipeline = Pipeline([
+        ("preprocessing", preprocessor),
+        ("regressor", model)
+    ])
+    pipeline.fit(X_train, y_train)
+    y_pred = pipeline.predict(X_test)
+    predictions[name] = y_pred
+    mse_scores[name] = mean_squared_error(y_test, y_pred)
+    r2_scores[name] = r2_score(y_test, y_pred)
 
-print("✅ Model trained and saved successfully.")
+    if name == "Random Forest":
+        # Save only the best model (Random Forest)
+        os.makedirs("model", exist_ok=True)
+        joblib.dump(pipeline, "model/house_price_model.pkl")
+
+# Plot MSE
+plt.figure(figsize=(10, 5))
+sns.barplot(x=list(mse_scores.keys()), y=list(mse_scores.values()), palette="Blues_d")
+plt.title("📊 Mean Squared Error Comparison")
+plt.ylabel("MSE")
+plt.tight_layout()
+plt.show()
+
+# Plot R²
+plt.figure(figsize=(10, 5))
+sns.barplot(x=list(r2_scores.keys()), y=list(r2_scores.values()), palette="Greens_d")
+plt.title("📈 R² Score Comparison")
+plt.ylabel("R²")
+plt.ylim(0, 1)
+plt.tight_layout()
+plt.show()
+
+# Line plot: actual vs predicted
+plt.figure(figsize=(12, 6))
+sample = y_test[:100].reset_index(drop=True)
+for name in models:
+    plt.plot(predictions[name][:100], label=f"{name} Prediction", linestyle='--')
+plt.plot(sample.values, label="Actual", linewidth=2, color="black")
+plt.title("📈 Actual vs Predicted Prices (First 100 Samples)")
+plt.xlabel("Sample Index")
+plt.ylabel("Price")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Heatmap
+plt.figure(figsize=(14, 10))
+numerical_data = data.select_dtypes(include=[np.number])
+corr_matrix = numerical_data.corr()
+sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", square=True)
+plt.title("🔥 Feature Correlation Heatmap")
+plt.tight_layout()
+plt.show()
+
+# Final performance summary
+performance_df = pd.DataFrame({
+    "Model": list(models.keys()),
+    "MSE": list(mse_scores.values()),
+    "R² Score": list(r2_scores.values())
+})
+
+print("\n✅ Model training complete and best model (Random Forest) saved.")
+print("📊 Model Performance Summary:")
+print(performance_df.to_string(index=False))
