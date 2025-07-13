@@ -1,102 +1,105 @@
-# 🏡 House Price Prediction App
+# 🏠 House Price Prediction App
 
-This is a web-based **House Price Prediction App** built using **Streamlit** and **Machine Learning**. The app predicts house and land prices based on various property features such as area, number of bedrooms, location type, and more.
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Streamlit](https://img.shields.io/badge/Built%20with-Streamlit-ff69b4)
+![Machine Learning](https://img.shields.io/badge/Model-RandomForest-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
----
-
-## 📌 Features
-
-✅ Predict house prices using a trained ML model  
-✅ Clean and responsive UI with background images  
-✅ Secure login/signup authentication using CSV  
-✅ Dropdown menus for categorical features  
-✅ Real-time price estimation  
-✅ Background image and logo support  
+A fully functional web-based **House & Land Price Prediction App** built using **Streamlit**, **Machine Learning**, and a custom authentication system. The app predicts house prices based on 25 real-estate and urban planning features.
 
 ---
 
-## 💡 Technologies Used
+## 🚀 Features
 
-- **Python**
-- **Streamlit** – Frontend/UI
-- **Scikit-learn** – Machine Learning
-- **Pandas & NumPy** – Data Handling
-- **Joblib** – Model Serialization
-- **CSV** – User authentication data storage
+- 🔐 Login & Signup Authentication (with hashed password)
+- 🧠 Machine Learning Model (Random Forest Regressor)
+- 📊 Predict House Prices from 25 factors
+- 🌃 Modern UI with background images and white text overlay
+- 📸 Screenshots & 🎥 Demo video
+- 🔄 Remembers session (username shown after login)
+- 📈 Top 10 features shown in bar graph post prediction
 
 ---
 
-## 🏗️ Project Structure
+## 🖼️ Screenshots
 
-house_price_prediction_app/
+### 🔐 Login Page
+![Login Page](screenshots/login.png)
 
-├── app.py # Streamlit application file
+### 🏘️ Prediction Form
+![Prediction Form](screenshots/predict_form.png)
 
-├── train_model.py # Script to generate synthetic data and train ML model
+### 📈 Prediction Result with Graph
+![Prediction Result](screenshots/prediction_result.png)
 
-├── users.csv # Stores registered users (username, password)
+---
 
+## 🎥 Demo Video
+
+[![Watch Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+> 🎯 Replace `YOUR_VIDEO_ID` with your actual YouTube video ID.
+
+---
+
+## 📁 Folder Structure
+
+## 🛠️ Tech Stack
+
+| Layer        | Technologies Used                        |
+|--------------|-------------------------------------------|
+| Frontend     | Streamlit, HTML/CSS, Matplotlib, Seaborn |
+| Backend      | Python, Pandas, scikit-learn, bcrypt      |
+| Model        | Random Forest Regressor                  |
+| Deployment   | Streamlit Cloud / Localhost              |
+
+---
+
+## 📂 Project Structure
+
+house-price-prediction-app/
+│
+├── app.py # Streamlit frontend
+├── train_model.py # Model training script
 ├── model/
-
-  │ └── house_price_model.pkl # Trained RandomForestRegressor model
-
+│ └── house_price_model.pkl # Trained Random Forest model
+├── users.csv # User credentials
 ├── assets/
-
-  │ ├── bg_image.jpg # Background image
-
-  │ ├── logo.png # Logo (optional)
-
-  │ └── house_sample.jpg # Display image inside the app
-
+│ └── screenshot.png # Screenshots/images
+├── README.md # Project overview
+└── requirements.txt # Python dependencies
 
 
 ---
 
-## ⚙️ How to Run
+## ⚙️ Setup Instructions
 
-### 🔧 1. Clone the Repository
+### 🔧 Local Installation
+
 ```bash
-git clone https://github.com/yourusername/house-price-prediction-app.git
+# Clone the repository
+git clone https://github.com/your-username/house-price-prediction-app.git
 cd house-price-prediction-app
-🐍 2. Install Requirements
-bash
+
+# Install dependencies
 pip install -r requirements.txt
-🧠 3. Train the Model
-bash
+
+# Train the model (optional)
 python train_model.py
-🚀 4. Run the App
-bash
+
+# Run the app
 streamlit run app.py
-✍️ Usage
-Open the app in your browser (usually http://localhost:8501)
+🖼️ Screenshots
+🔐 Login Page
 
-Sign up or log in with your credentials
+📊 Prediction Output
 
-Fill in house-related input fields
+📌 Future Enhancements
+📥 Download prediction results as CSV
 
-Click "Predict Price"
+🧠 Add explainable AI (e.g., SHAP values)
 
-View the estimated house price on the screen
-
-
-
-📂 Sample User Credentials
-
-Username: admin
-Password: house123
-📚 Project Purpose
-This app is ideal for:
-
-Real estate businesses looking for AI integration
-
-ML learners building portfolio projects
-
-Final-year students showcasing real-world applications
-
-🔐 Security Note
-Currently, user authentication is handled via plaintext in a CSV file (users.csv). For production use, implement proper encryption and switch to a database.
-
-
+🌐 Host user history and admin dashboard
 
 🙋‍♀️ Author
 Aishwarya Shrivastava
