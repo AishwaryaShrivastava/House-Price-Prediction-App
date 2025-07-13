@@ -24,7 +24,7 @@ A fully functional web-based **House & Land Price Prediction App** built using *
 ## 🖼️ Screenshots
 
 ### 🔐 Login Page
-![Login Page](screenshots/login.png)
+![Login Page](login.png)
 
 ### 🏘️ Prediction Form
 ![Prediction Form](screenshots/predict_form1.png)
