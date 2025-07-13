@@ -110,3 +110,6 @@ streamlit run app.py
 Aishwarya Shrivastava
 📍 BIT Durg | AI Enthusiast | Python & ML Developer
 📫 Contact: aishwaryashrivastava2004@gmail.com
+
+## 📜 License  
+This project is licensed under the [MIT License](LICENSE).
