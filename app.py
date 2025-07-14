@@ -16,8 +16,6 @@ if not os.path.exists(USER_CSV):
 
 # Page config
 st.set_page_config(page_title="House Price Predictor", layout="wide")
-
-# Early welcome message to replace oven screen
 st.markdown("<h1 style='color:white;'>🏠 Welcome to the House Price Predictor</h1>", unsafe_allow_html=True)
 
 # ---------- CSS Styling ----------
@@ -28,12 +26,10 @@ st.markdown("""
             background-size: cover;
             background-attachment: fixed;
         }
-
         section[data-testid="stSidebar"] {
             background-color: white;
             color: black;
         }
-
         .main > div {
             background-color: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
@@ -41,17 +37,14 @@ st.markdown("""
             margin: 2rem;
             color: white !important;
         }
-
         h1, h2, h3, h4, h5, h6, label, .stTextInput label, .stSelectbox label, .stNumberInput label {
             color: white !important;
             text-align: left;
         }
-
         input, select, textarea {
             color: black !important;
             background-color: rgba(255,255,255,0.95) !important;
         }
-
         .stTextInput > div > div > input,
         .stNumberInput > div > div > input,
         .stSelectbox > div > div > div {
@@ -59,12 +52,10 @@ st.markdown("""
             background-color: white !important;
             border-radius: 5px;
         }
-
         .stButton > button {
             color: black !important;
             background-color: white !important;
         }
-
         .css-1cpxqw2, .css-1gk0h3w, .stMarkdown {
             color: white !important;
         }
@@ -73,6 +64,8 @@ st.markdown("""
 
 # ---------- Authentication ----------
 def signup(username, password):
+    if not username or not password:
+        return False
     df = pd.read_csv(USER_CSV)
     if username in df["username"].values:
         return False
@@ -87,6 +80,8 @@ def login(username, password):
     if user_row.empty:
         return False
     stored_hash = user_row.iloc[0]["password"]
+    if pd.isna(stored_hash):  # Prevent crash if CSV is corrupted
+        return False
     return bcrypt.checkpw(password.strip().encode('utf-8'), stored_hash.encode('utf-8'))
 
 # ---------- Session State ----------
@@ -135,7 +130,7 @@ elif action == "Signup" and not st.session_state.logged_in:
         if signup(username, password):
             st.success("✅ Account created! Please login.")
         else:
-            st.warning("⚠️ Username already exists.")
+            st.warning("⚠️ Username already exists or empty fields.")
 
 # ---------- Prediction ----------
 if st.session_state.logged_in or action == "Predict Price" or st.session_state.page == "Predict":
@@ -235,3 +230,4 @@ if st.session_state.logged_in or action == "Predict Price" or st.session_state.p
 
             except Exception as e:
                 st.error(f"❌ Prediction failed: {e}")
+
