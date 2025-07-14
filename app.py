@@ -10,15 +10,15 @@ from pathlib import Path
 MODEL_PATH = "model/house_price_model.pkl"
 USER_CSV = "users.csv"
 
-# Load model
-model = joblib.load(MODEL_PATH)
-
 # Create user CSV if not exists
 if not os.path.exists(USER_CSV):
     pd.DataFrame(columns=["username", "password"]).to_csv(USER_CSV, index=False)
 
 # Page config
 st.set_page_config(page_title="House Price Predictor", layout="wide")
+
+# Early welcome message to replace oven screen
+st.markdown("<h1 style='color:white;'>🏠 Welcome to the House Price Predictor</h1>", unsafe_allow_html=True)
 
 # ---------- CSS Styling ----------
 st.markdown("""
@@ -35,26 +35,23 @@ st.markdown("""
         }
 
         .main > div {
-            background-color: rgba(0, 0, 0, 0.7); /* Dark translucent background */
+            background-color: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
             padding: 2rem;
             margin: 2rem;
             color: white !important;
         }
 
-        /* Make labels/headings white */
         h1, h2, h3, h4, h5, h6, label, .stTextInput label, .stSelectbox label, .stNumberInput label {
             color: white !important;
             text-align: left;
         }
 
-        /* Make input text black inside textboxes/selectboxes */
         input, select, textarea {
             color: black !important;
             background-color: rgba(255,255,255,0.95) !important;
         }
 
-        /* Streamlit component inputs */
         .stTextInput > div > div > input,
         .stNumberInput > div > div > input,
         .stSelectbox > div > div > div {
@@ -63,7 +60,6 @@ st.markdown("""
             border-radius: 5px;
         }
 
-        /* Button Text */
         .stButton > button {
             color: black !important;
             background-color: white !important;
@@ -114,10 +110,9 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 action = st.sidebar.selectbox("Select Action", ["Login", "Signup", "Predict Price"])
-
 st.sidebar.button("Login")
 
-# ---------- Login Page ----------
+# ---------- Login ----------
 if action == "Login" and not st.session_state.logged_in:
     st.markdown("## Login")
     username = st.text_input("Username")
@@ -128,7 +123,6 @@ if action == "Login" and not st.session_state.logged_in:
             st.session_state.username = username
             st.session_state.page = "Predict"
             st.markdown(f"<h4 style='color:white;'>✅ Welcome {username}!</h4>", unsafe_allow_html=True)
-
         else:
             st.error("❌ Invalid credentials")
 
@@ -143,7 +137,7 @@ elif action == "Signup" and not st.session_state.logged_in:
         else:
             st.warning("⚠️ Username already exists.")
 
-# ---------- Prediction Page ----------
+# ---------- Prediction ----------
 if st.session_state.logged_in or action == "Predict Price" or st.session_state.page == "Predict":
     st.markdown("## 🏠 House Price Prediction App")
     st.markdown("### 📊 Predict House & Land Price")
@@ -180,49 +174,64 @@ if st.session_state.logged_in or action == "Predict Price" or st.session_state.p
         slope = st.selectbox("Land Slope", ["Flat", "Moderate", "Steep"])
 
     if st.button("Predict Price"):
-        input_data = pd.DataFrame([{
-            "Area": area,
-            "Bedrooms": bedrooms,
-            "Bathrooms": bathrooms,
-            "YearBuilt": year_built,
-            "RenovationYear": renovation_year,
-            "Location": location,
-            "RoadType": road_type,
-            "PropertyType": property_type,
-            "WaterSupply": water_quality,
-            "Electricity": electricity,
-            "CrimeRate": crime_rate,
-            "Traffic": traffic,
-            "GreenSpace": green_space,
-            "ProximitySchools": proximity_schools,
-            "ProximityMall": proximity_mall,
-            "FloodZone": flood_zone,
-            "HouseType": house_type,
-            "NeighborhoodRating": neighborhood_rating,
-            "DistanceToCityCenter": distance_to_city,
-            "LotSize": lot_size,
-            "Garage": garage,
-            "PublicTransport": public_transport,
-            "Internet": internet,
-            "FutureDevelopment": future_development,
-            "Drainage": drainage,
-            "Slope": slope
-        }])
+        with st.spinner("Loading model and predicting..."):
+            try:
+                model = joblib.load(MODEL_PATH)
+                input_data = pd.DataFrame([{
+                    "Area": area,
+                    "Bedrooms": bedrooms,
+                    "Bathrooms": bathrooms,
+                    "YearBuilt": year_built,
+                    "RenovationYear": renovation_year,
+                    "Location": location,
+                    "RoadType": road_type,
+                    "PropertyType": property_type,
+                    "WaterSupply": water_quality,
+                    "Electricity": electricity,
+                    "CrimeRate": crime_rate,
+                    "Traffic": traffic,
+                    "GreenSpace": green_space,
+                    "ProximitySchools": proximity_schools,
+                    "ProximityMall": proximity_mall,
+                    "FloodZone": flood_zone,
+                    "HouseType": house_type,
+                    "NeighborhoodRating": neighborhood_rating,
+                    "DistanceToCityCenter": distance_to_city,
+                    "LotSize": lot_size,
+                    "Garage": garage,
+                    "PublicTransport": public_transport,
+                    "Internet": internet,
+                    "FutureDevelopment": future_development,
+                    "Drainage": drainage,
+                    "Slope": slope
+                }])
 
-        try:
-            # Ensure model gets encoded inputs
-            prediction = model.predict(input_data)[0]
-            st.markdown(f"<h3 style='color:white;'>🏡 Estimated House Price: ₹ {prediction:,.2f}</h3>", unsafe_allow_html=True)
+                prediction = model.predict(input_data)[0]
+                st.markdown(f"<h3 style='color:white;'>🏡 Estimated House Price: ₹ {prediction:,.2f}</h3>", unsafe_allow_html=True)
 
+                st.markdown("---")
+                st.markdown("### 📊 Model Performance Visualizations")
 
-            # Graph
-            st.markdown("### 🔍 Feature Overview")
-            numeric_features = input_data.select_dtypes(include=['number']).iloc[0].sort_values(ascending=False).head(10)
-            fig, ax = plt.subplots()
-            numeric_features.plot(kind="barh", color="skyblue", ax=ax)
-            ax.set_xlabel("Value")
-            ax.set_title("Top 10 Numerical Features")
-            st.pyplot(fig)
+                image_paths = {
+                    "Mean Squared Error Comparison": "model/mse_plot.png",
+                    "R² Score Comparison": "model/r2_plot.png",
+                    "Actual vs Predicted Prices (First 100 Samples)": "model/actual_vs_predicted.png",
+                    "Feature Correlation Heatmap": "model/correlation_heatmap.png"
+                }
 
-        except Exception as e:
-            st.error(f"❌ Prediction failed: {e}")
+                for caption, path in image_paths.items():
+                    if os.path.exists(path):
+                        st.image(path, caption=caption, use_container_width=True)
+                    else:
+                        st.warning(f"⚠️ Image not found: {caption}")
+
+                st.markdown("### 🔍 Feature Overview")
+                numeric_features = input_data.select_dtypes(include=['number']).iloc[0].sort_values(ascending=False).head(10)
+                fig, ax = plt.subplots()
+                numeric_features.plot(kind="barh", color="skyblue", ax=ax)
+                ax.set_xlabel("Value")
+                ax.set_title("Top 10 Numerical Features")
+                st.pyplot(fig)
+
+            except Exception as e:
+                st.error(f"❌ Prediction failed: {e}")
