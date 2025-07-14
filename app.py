@@ -10,15 +10,15 @@ from pathlib import Path
 MODEL_PATH = "model/house_price_model.pkl"
 USER_CSV = "users.csv"
 
-# Create user CSV if not exists
+# Create users.csv if missing
 if not os.path.exists(USER_CSV):
     pd.DataFrame(columns=["username", "password"]).to_csv(USER_CSV, index=False)
 
-# Page config
+# Streamlit page setup
 st.set_page_config(page_title="House Price Predictor", layout="wide")
 st.markdown("<h1 style='color:white;'>🏠 Welcome to the House Price Predictor</h1>", unsafe_allow_html=True)
 
-# ---------- CSS Styling ----------
+# CSS Styling
 st.markdown("""
     <style>
          .stApp {
@@ -37,27 +37,16 @@ st.markdown("""
             margin: 2rem;
             color: white !important;
         }
-        h1, h2, h3, h4, h5, h6, label, .stTextInput label, .stSelectbox label, .stNumberInput label {
+        h1, h2, h3, h4, h5, h6, label {
             color: white !important;
-            text-align: left;
         }
         input, select, textarea {
             color: black !important;
             background-color: rgba(255,255,255,0.95) !important;
         }
-        .stTextInput > div > div > input,
-        .stNumberInput > div > div > input,
-        .stSelectbox > div > div > div {
-            color: black !important;
-            background-color: white !important;
-            border-radius: 5px;
-        }
         .stButton > button {
             color: black !important;
             background-color: white !important;
-        }
-        .css-1cpxqw2, .css-1gk0h3w, .stMarkdown {
-            color: white !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -80,11 +69,11 @@ def login(username, password):
     if user_row.empty:
         return False
     stored_hash = user_row.iloc[0]["password"]
-    if pd.isna(stored_hash):  # Prevent crash if CSV is corrupted
+    if pd.isna(stored_hash) or not isinstance(stored_hash, str):
         return False
     return bcrypt.checkpw(password.strip().encode('utf-8'), stored_hash.encode('utf-8'))
 
-# ---------- Session State ----------
+# Session state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
@@ -92,22 +81,11 @@ if "username" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state.page = "Login"
 
-# ---------- Sidebar ----------
-st.sidebar.markdown("""
-    <style>
-        .sidebar-nav-title {
-            color: black !important;
-            font-size: 22px;
-            font-weight: bold;
-        }
-    </style>
-    <h3 class="sidebar-nav-title">🏡 Navigation</h3>
-""", unsafe_allow_html=True)
-
+# Sidebar
+st.sidebar.markdown("<h3 style='color:black;'>🏡 Navigation</h3>", unsafe_allow_html=True)
 action = st.sidebar.selectbox("Select Action", ["Login", "Signup", "Predict Price"])
-st.sidebar.button("Login")
 
-# ---------- Login ----------
+# Login
 if action == "Login" and not st.session_state.logged_in:
     st.markdown("## Login")
     username = st.text_input("Username")
@@ -121,7 +99,7 @@ if action == "Login" and not st.session_state.logged_in:
         else:
             st.error("❌ Invalid credentials")
 
-# ---------- Signup ----------
+# Signup
 elif action == "Signup" and not st.session_state.logged_in:
     st.markdown("## Signup")
     username = st.text_input("Choose Username")
@@ -130,9 +108,9 @@ elif action == "Signup" and not st.session_state.logged_in:
         if signup(username, password):
             st.success("✅ Account created! Please login.")
         else:
-            st.warning("⚠️ Username already exists or empty fields.")
+            st.warning("⚠️ Username already exists or empty input.")
 
-# ---------- Prediction ----------
+# Prediction
 if st.session_state.logged_in or action == "Predict Price" or st.session_state.page == "Predict":
     st.markdown("## 🏠 House Price Prediction App")
     st.markdown("### 📊 Predict House & Land Price")
@@ -200,34 +178,7 @@ if st.session_state.logged_in or action == "Predict Price" or st.session_state.p
                     "Drainage": drainage,
                     "Slope": slope
                 }])
-
                 prediction = model.predict(input_data)[0]
                 st.markdown(f"<h3 style='color:white;'>🏡 Estimated House Price: ₹ {prediction:,.2f}</h3>", unsafe_allow_html=True)
-
-                st.markdown("---")
-                st.markdown("### 📊 Model Performance Visualizations")
-
-                image_paths = {
-                    "Mean Squared Error Comparison": "model/mse_plot.png",
-                    "R² Score Comparison": "model/r2_plot.png",
-                    "Actual vs Predicted Prices (First 100 Samples)": "model/actual_vs_predicted.png",
-                    "Feature Correlation Heatmap": "model/correlation_heatmap.png"
-                }
-
-                for caption, path in image_paths.items():
-                    if os.path.exists(path):
-                        st.image(path, caption=caption, use_container_width=True)
-                    else:
-                        st.warning(f"⚠️ Image not found: {caption}")
-
-                st.markdown("### 🔍 Feature Overview")
-                numeric_features = input_data.select_dtypes(include=['number']).iloc[0].sort_values(ascending=False).head(10)
-                fig, ax = plt.subplots()
-                numeric_features.plot(kind="barh", color="skyblue", ax=ax)
-                ax.set_xlabel("Value")
-                ax.set_title("Top 10 Numerical Features")
-                st.pyplot(fig)
-
             except Exception as e:
                 st.error(f"❌ Prediction failed: {e}")
-
