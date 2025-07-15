@@ -39,11 +39,6 @@ A fully functional web-based **House & Land Price Prediction App** built using *
 ![Prediction Result](prediction_result6.png)
 ---
 
-## 🎥 Demo Video
-
-[![Watch Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
-
-> 🎯 Replace `YOUR_VIDEO_ID` with your actual YouTube video ID.
 
 ---
 
