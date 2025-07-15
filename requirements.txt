@@ -5,4 +5,4 @@ joblib
 bcrypt
 matplotlib
 seaborn
-scikit-learn
+scikit-learn==1.3.2
