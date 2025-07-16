@@ -43,7 +43,7 @@ A fully functional web-based **House & Land Price Prediction App** built using *
 
 ### 🎥 Demo Video
 
-📺 [Click here to watch/download the demo video](assets/demo_video.mp4)
+📺 [Click here to watch/download the demo video](demo_video.mp4)
 ---
 
 ## 📁 Folder Structure
